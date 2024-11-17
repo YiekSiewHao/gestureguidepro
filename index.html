@@ -186,7 +186,6 @@
     </style>
 </head>
 <body>
-    <!-- Rest of your HTML remains exactly the same -->
     <div class="container">
         <div class="header">
             <h1>GestureGuide Pro</h1>
@@ -208,7 +207,10 @@
                 <img id="gesture-image" src="" alt="Gesture to perform">
                 <div id="accuracy">Accuracy: 0%</div>
                 <div id="timer"></div>
-                <button id="next-button" onclick="nextGesture()" disabled>Next Gesture →</button>
+                <div>
+                    <button id="next-button" onclick="nextGesture()" disabled>Next Gesture →</button>
+                    <button id="skip-button" onclick="manualSkipGesture()">Skip Gesture</button>
+                </div>
             </div>
         </div>
     </div>
@@ -217,8 +219,8 @@
         const URL = "./my_model/";
         let model, webcam, maxPredictions;
         let currentGestureIndex = 0;
-        const accuracyThreshold = 0.45;
-        const timeThreshold = 4000;
+        const accuracyThreshold = 0.30;
+        const timeThreshold = 3000;
         let highAccuracyStartTime = null;
         let isHighAccuracy = false;
         let timeThresholdAchieved = false;
@@ -229,7 +231,6 @@
             { name: 'Fist', image: './hand_gesture/gesture1.jpg' },
             { name: 'OK', image: './hand_gesture/gesture2.jpg' },
             { name: 'bent finger', image: './hand_gesture/gesture3.jpg' }
-            // Add more gestures as needed
         ];
 
         async function init() {
@@ -351,6 +352,31 @@
         }
 
         function nextGesture() {
+            const debugInfo = document.getElementById("debug-info");
+
+            currentGestureIndex++;
+            if (currentGestureIndex >= gestures.length) {
+                alert("Congratulations! You've completed all gestures! 🎉");
+                currentGestureIndex = 0; // Reset to the first gesture
+            }
+
+            // Update the gesture image
+            const gestureImage = document.getElementById("gesture-image");
+            gestureImage.onerror = function() {
+                alert("Error loading image: " + gestures[currentGestureIndex].image);
+                debugInfo.innerHTML += "\nError loading image: " + gestures[currentGestureIndex].image;
+            };
+            gestureImage.src = gestures[currentGestureIndex].image;
+
+            document.getElementById("next-button").disabled = true;
+            document.getElementById("accuracy").innerText = "Accuracy: 0%";
+            document.getElementById("timer").innerText = "";
+            isHighAccuracy = false;
+            highAccuracyStartTime = null;
+            timeThresholdAchieved = false; // Reset the flag
+        }
+
+        function manualSkipGesture() {
             const debugInfo = document.getElementById("debug-info");
 
             currentGestureIndex++;
